@@ -113,6 +113,7 @@ class Supplier extends CI_Controller
         $supplierBarangId = $_POST['supplierBarangId'];
         $supplierBarangHarjul= $_POST['supplierBarangHarjul'];
         $supplierBarangStok = $_POST['supplierBarangStok'];
+        $supplierBarangQty = $_POST['supplierBarangQty'];
         $created_at = date('Y-m-d h:m:s');
 
         $cekstok = $this->db->query("SELECT * FROM tbl_barang WHERE barang_id = '$supplierBarangId' ")->row();
@@ -127,8 +128,8 @@ class Supplier extends CI_Controller
         if ($cekstok->barang_stok > 1) {
             // insert here
             $input = $this->db->query("INSERT INTO tbl_keranjang_pembelian 
-                (supplier_id, barang_id, barang_harjul, barang_stok, created_at) 
-                VALUES ('$supplierId', '$supplierBarangId', '$supplierBarangHarjul', '$supplierBarangStok', '$created_at')");
+                (supplier_id, barang_id, barang_harjul, barang_stok, qty, created_at) 
+                VALUES ('$supplierId', '$supplierBarangId', '$supplierBarangHarjul', '$supplierBarangStok', '$supplierBarangQty', '$created_at')");
         
             if ($input) {
                 $hasil = [
@@ -199,4 +200,70 @@ class Supplier extends CI_Controller
     echo json_encode($customers);
     }
 
+    public function bayarKeranjang()
+    {
+        $supplierId = $_POST['supplierId'];
+
+        $data = $this->db->query("SELECT kjp.id, kjp.supplier_id, kjp.barang_id, b.barang_nama, kjp.barang_harjul, kjp.barang_stok, kjp.qty FROM tbl_keranjang_pembelian kjp JOIN tbl_barang b ON kjp.barang_id = b.barang_id WHERE kjp.supplier_id = '$supplierId';")->result();
+
+        $hasil = [
+            'status' => 'ok',
+            'data' => $data
+        ];
+
+        echo json_encode($hasil);
+    }
+
+    public function deleteKeranjang()
+    {
+        $keranjang_id = $_POST['id'];
+
+        $input = $this->db->query("DELETE FROM tbl_keranjang_pembelian WHERE id = '$keranjang_id'");
+
+        if ($input) {
+            $hasil = [
+                'status' => 'ok',
+                'keterangan' => 'Pembelian berhasil dihapus'
+            ];
+        } else {
+            $hasil = [
+                'status' => 'gagal',
+                'keterangan' => 'Pembelian gagal dihapus'
+            ];
+        }
+
+        echo json_encode($hasil);
+    }
+
+    public function editQty()
+    {
+        $id = $_POST['id']; 
+        $barang_id = $_POST['barang_id'];
+        $qty = $_POST['qty'];
+        $action = $_POST['action'];
+
+        // if action?? plus =???? $qty + 1 else qty - 1
+
+        if ($action == 'plus') {
+            $qty += 1;
+        } else {
+            $qty -= 1;
+        }
+
+        $input = $this->db->query("UPDATE `tbl_keranjang_pembelian` SET qty = '$qty' WHERE id = '$id' AND barang_id = '$barang_id';");
+
+        if ($input) {
+            $hasil = [
+                'status' => 'ok',
+                'keterangan' => 'data berhasil diupdate'
+            ];
+        } else {
+            $hasil = [
+                'status' => 'gagal',
+                'keterangan' => 'data gagal diupdate'
+            ];
+        }
+
+        echo json_encode($hasil);
+    }
 }

@@ -3,6 +3,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+// header('Content-Type: application/json');
 
 class Pelanggan extends CI_Controller
 {
@@ -113,14 +114,15 @@ class Pelanggan extends CI_Controller
         $pelangganBarangId = $_POST['pelangganBarangId'];
         $pelangganBarangHarjul = $_POST['pelangganBarangHarjul'];
         $pelangganBarangStok = $_POST['pelangganBarangStok'];
+        $pelangganBarangQty = $_POST['pelangganBarangQty'];
         $created_at = date('Y-m-d h:m:s');
 
         $cekstok = $this->db->query("SELECT * FROM tbl_barang WHERE barang_id = '$pelangganBarangId'")->row();
 
         if ($cekstok->barang_stok > 1) {
             $input = $this->db->query("INSERT INTO tbl_keranjang 
-            (pelanggan_id, barang_id, barang_harjul, barang_stok, created_at) 
-            VALUES ('$pelangganId', '$pelangganBarangId', '$pelangganBarangHarjul', '$pelangganBarangStok', '$created_at')");
+            (pelanggan_id, barang_id, barang_harjul, barang_stok, qty, created_at) 
+            VALUES ('$pelangganId', '$pelangganBarangId', '$pelangganBarangHarjul', '$pelangganBarangStok', '$pelangganBarangQty', '$created_at')");
 
             if ($input) {
                 $hasil = [
@@ -195,12 +197,65 @@ class Pelanggan extends CI_Controller
     {
         $pelangganId = $_POST['pelangganId'];
 
-        $data = $this->db->query("SELECT kj.pelanggan_id, kj.barang_id, b.barang_nama, kj.barang_harjul, kj.barang_stok FROM tbl_keranjang kj JOIN tbl_barang b ON kj.barang_id = b.barang_id WHERE kj.pelanggan_id = '$pelangganId'")->result();
+        $data = $this->db->query("SELECT kj.id, kj.pelanggan_id, kj.barang_id, b.barang_nama, kj.barang_harjul, kj.barang_stok, kj.qty FROM tbl_keranjang kj JOIN tbl_barang b ON kj.barang_id = b.barang_id WHERE kj.pelanggan_id = '$pelangganId'")->result();
 
         $hasil = [
             'status' => 'ok',
             'data' => $data
         ];
+
+        echo json_encode($hasil);
+    }
+
+    public function deleteKeranjang()
+    {
+        $keranjang_id = $_POST['id'];
+
+        $input = $this->db->query("DELETE FROM tbl_keranjang WHERE id = '$keranjang_id'");
+
+        if ($input) {
+            $hasil = [
+                'status' => 'ok',
+                'keterangan' => 'Keranjang berhasil dihapus'
+            ];
+        } else {
+            $hasil = [
+                'status' => 'gagal',
+                'keterangan' => 'Keranjang gagal dihapus'
+            ];
+        }
+
+        echo json_encode($hasil);
+    }
+
+    public function editQty()
+    {
+        $id = $_POST['id']; 
+        $barang_id = $_POST['barang_id'];
+        $qty = $_POST['qty'];
+        $action = $_POST['action'];
+
+        // if action?? plus =???? $qty + 1 else qty - 1
+
+        if ($action == 'plus') {
+            $qty += 1;
+        } else {
+            $qty -= 1;
+        }
+
+        $input = $this->db->query("UPDATE `tbl_keranjang` SET qty = '$qty' WHERE id = '$id' AND barang_id = '$barang_id';");
+
+        if ($input) {
+            $hasil = [
+                'status' => 'ok',
+                'keterangan' => 'data berhasil diupdate'
+            ];
+        } else {
+            $hasil = [
+                'status' => 'gagal',
+                'keterangan' => 'data gagal diupdate'
+            ];
+        }
 
         echo json_encode($hasil);
     }
