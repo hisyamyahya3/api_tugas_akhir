@@ -113,15 +113,23 @@ class Pelanggan extends CI_Controller
         $pelangganId = $_POST['pelangganId'];
         $pelangganBarangId = $_POST['pelangganBarangId'];
         $pelangganBarangHarjul = $_POST['pelangganBarangHarjul'];
-        $pelangganBarangQty = $_POST['pelangganBarangQty'];
+        $qty = $_POST['pelangganBarangQty'];
         $created_at = date('Y-m-d h:m:s');
 
         $cekstok = $this->db->query("SELECT * FROM tbl_barang WHERE barang_id = '$pelangganBarangId'")->row();
 
         if ($cekstok->barang_stok > 1) {
-            $input = $this->db->query("INSERT INTO tbl_keranjang 
+            $cartCheck = $this->db->query("SELECT * FROM tbl_keranjang WHERE pelanggan_id = '$pelangganId' AND barang_id = '$pelangganBarangId'")->row();
+
+            if ($cartCheck) {
+                $qty += $cartCheck->qty;
+
+                $input = $this->db->query("UPDATE tbl_keranjang SET qty = '$qty' WHERE pelanggan_id = '$pelangganId' AND barang_id = '$pelangganBarangId'");
+            } else {
+                $input = $this->db->query("INSERT INTO tbl_keranjang 
             (pelanggan_id, barang_id, barang_harjul, qty, created_at) 
-            VALUES ('$pelangganId', '$pelangganBarangId', '$pelangganBarangHarjul', '$pelangganBarangQty', '$created_at')");
+            VALUES ('$pelangganId', '$pelangganBarangId', '$pelangganBarangHarjul', '$qty', '$created_at')");
+            }
 
             if ($input) {
                 $hasil = [
@@ -162,22 +170,22 @@ class Pelanggan extends CI_Controller
         ORDER BY 
             p.pelanggan_id";
 
-        
+
         $query = $this->db->query($sql);
 
         $customers = [];
 
         foreach ($query->result_array() as $row) {
-            
+
             if (!isset($customers[$row['pelanggan_nama']])) {
-                
+
                 $customers[$row['pelanggan_nama']] = [
                     'pelanggan_nama' => $row['pelanggan_nama'],
                     'pelanggan_id' => $row['pelanggan_id'],
                     'data' => []
                 ];
             }
- 
+
             $customers[$row['pelanggan_nama']]['data'][] = [
                 'barang_id' => $row['barang_id'],
                 'barang_nama' => $row['barang_nama'],
@@ -229,7 +237,7 @@ class Pelanggan extends CI_Controller
 
     public function editQty()
     {
-        $id = $_POST['id']; 
+        $id = $_POST['id'];
         $barang_id = $_POST['barang_id'];
         $qty = $_POST['qty'];
         $action = $_POST['action'];

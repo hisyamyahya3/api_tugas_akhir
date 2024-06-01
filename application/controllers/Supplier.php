@@ -9,7 +9,7 @@ class Supplier extends CI_Controller
     public function index()
     {
         $data = $this->db->query("SELECT * FROM tbl_suplier")->result();
-    
+
         $hasil = [
             'status' => 'ok',
             'data' => $data
@@ -64,7 +64,7 @@ class Supplier extends CI_Controller
 
     public function update()
     {
-        $suplier_id = $_POST['kodeSupplier']; 
+        $suplier_id = $_POST['kodeSupplier'];
         $suplier_nama = $_POST['suplier_nama'];
         $suplier_alamat = $_POST['suplier_alamat'];
         $suplier_notelp = $_POST['suplier_notelp'];
@@ -111,25 +111,26 @@ class Supplier extends CI_Controller
     {
         $supplierId = $_POST['supplierId'];
         $supplierBarangId = $_POST['supplierBarangId'];
-        $supplierBarangHarjul= $_POST['supplierBarangHarjul'];
+        $supplierBarangHarjul = $_POST['supplierBarangHarjul'];
+        $supplierBarangStok = $_POST['supplierBarangStok'];
         $supplierBarangQty = $_POST['supplierBarangQty'];
         $created_at = date('Y-m-d h:m:s');
 
         $cekstok = $this->db->query("SELECT * FROM tbl_barang WHERE barang_id = '$supplierBarangId' ")->row();
-        
+
         // cek stok>
         // klo stok > 0, berarti bisa insert. klo 0, berarti gabisa insert
         // klo misal min stok 1, trus stok skrg sisa 2. trus ada orang beli 2
-        
+
         // cek klo qty > stok product {
-            // gabisa
+        // gabisa
         // }
         if ($cekstok->barang_stok > 1) {
             // insert here
             $input = $this->db->query("INSERT INTO tbl_keranjang_pembelian 
-                (supplier_id, barang_id, barang_harjul, qty, created_at) 
-                VALUES ('$supplierId', '$supplierBarangId', '$supplierBarangHarjul', '$supplierBarangQty', '$created_at')");
-        
+                (supplier_id, barang_id, barang_harjul, barang_stok, qty, created_at) 
+                VALUES ('$supplierId', '$supplierBarangId', '$supplierBarangHarjul', '$supplierBarangStok', '$supplierBarangQty', '$created_at')");
+
             if ($input) {
                 $hasil = [
                     'status' => 'ok',
@@ -147,7 +148,7 @@ class Supplier extends CI_Controller
                 'keterangan' => 'data gagal ditambahkan ke Keranjang'
             ];
         }
-    
+
         echo json_encode($hasil);
     }
 
@@ -169,34 +170,32 @@ class Supplier extends CI_Controller
     ORDER BY 
         s.suplier_id";
 
-    
-    $query = $this->db->query($sql);
 
-    $customers = [];
+        $query = $this->db->query($sql);
 
-    foreach ($query->result_array() as $row) {
-        
-        if (!isset($customers[$row['suplier_nama']])) {
-            
-            $customers[$row['suplier_nama']] = [
-                'suplier_nama' => $row['suplier_nama'],
-                'suplier_id' => $row['suplier_id'],
-                'data' => []
+        $customers = [];
+
+        foreach ($query->result_array() as $row) {
+            if (!isset($customers[$row['suplier_nama']])) {
+                $customers[$row['suplier_nama']] = [
+                    'suplier_nama' => $row['suplier_nama'],
+                    'suplier_id' => $row['suplier_id'],
+                    'data' => []
+                ];
+            }
+
+            $customers[$row['suplier_nama']]['data'][] = [
+                'barang_id' => $row['barang_id'],
+                'barang_nama' => $row['barang_nama'],
+                'barang_harjul' => $row['barang_harjul'],
+                'barang_stok' => $row['barang_stok']
             ];
         }
 
-        $customers[$row['suplier_nama']]['data'][] = [
-            'barang_id' => $row['barang_id'],
-            'barang_nama' => $row['barang_nama'],
-            'barang_harjul' => $row['barang_harjul'],
-            'barang_stok' => $row['barang_stok']
-        ];
-    }
+        // Convert associative array to indexed array
+        $customers = array_values($customers);
 
-    // Convert associative array to indexed array
-    $customers = array_values($customers);
-
-    echo json_encode($customers);
+        echo json_encode($customers);
     }
 
     public function bayarKeranjang()
@@ -236,7 +235,7 @@ class Supplier extends CI_Controller
 
     public function editQty()
     {
-        $id = $_POST['id']; 
+        $id = $_POST['id'];
         $barang_id = $_POST['barang_id'];
         $qty = $_POST['qty'];
         $action = $_POST['action'];
