@@ -113,7 +113,6 @@ class Pelanggan extends CI_Controller
         $pelangganId = $_POST['pelangganId'];
         $pelangganBarangId = $_POST['pelangganBarangId'];
         $pelangganBarangHarjul = $_POST['pelangganBarangHarjul'];
-        $pelangganBarangStok = $_POST['pelangganBarangStok'];
         $pelangganBarangQty = $_POST['pelangganBarangQty'];
         $created_at = date('Y-m-d h:m:s');
 
@@ -121,8 +120,8 @@ class Pelanggan extends CI_Controller
 
         if ($cekstok->barang_stok > 1) {
             $input = $this->db->query("INSERT INTO tbl_keranjang 
-            (pelanggan_id, barang_id, barang_harjul, barang_stok, qty, created_at) 
-            VALUES ('$pelangganId', '$pelangganBarangId', '$pelangganBarangHarjul', '$pelangganBarangStok', '$pelangganBarangQty', '$created_at')");
+            (pelanggan_id, barang_id, barang_harjul, qty, created_at) 
+            VALUES ('$pelangganId', '$pelangganBarangId', '$pelangganBarangHarjul', '$pelangganBarangQty', '$created_at')");
 
             if ($input) {
                 $hasil = [
