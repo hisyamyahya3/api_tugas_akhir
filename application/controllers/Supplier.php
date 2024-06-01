@@ -112,7 +112,6 @@ class Supplier extends CI_Controller
         $supplierId = $_POST['supplierId'];
         $supplierBarangId = $_POST['supplierBarangId'];
         $supplierBarangHarjul= $_POST['supplierBarangHarjul'];
-        $supplierBarangStok = $_POST['supplierBarangStok'];
         $supplierBarangQty = $_POST['supplierBarangQty'];
         $created_at = date('Y-m-d h:m:s');
 
@@ -128,8 +127,8 @@ class Supplier extends CI_Controller
         if ($cekstok->barang_stok > 1) {
             // insert here
             $input = $this->db->query("INSERT INTO tbl_keranjang_pembelian 
-                (supplier_id, barang_id, barang_harjul, barang_stok, qty, created_at) 
-                VALUES ('$supplierId', '$supplierBarangId', '$supplierBarangHarjul', '$supplierBarangStok', '$supplierBarangQty', '$created_at')");
+                (supplier_id, barang_id, barang_harjul, qty, created_at) 
+                VALUES ('$supplierId', '$supplierBarangId', '$supplierBarangHarjul', '$supplierBarangQty', '$created_at')");
         
             if ($input) {
                 $hasil = [
@@ -160,7 +159,7 @@ class Supplier extends CI_Controller
         b.barang_id,
         b.barang_nama,
         kjp.barang_harjul,
-        kjp.barang_stok
+        b.barang_stok
     FROM 
         tbl_keranjang_pembelian kjp 
     JOIN 
@@ -204,7 +203,7 @@ class Supplier extends CI_Controller
     {
         $supplierId = $_POST['supplierId'];
 
-        $data = $this->db->query("SELECT kjp.id, kjp.supplier_id, kjp.barang_id, b.barang_nama, kjp.barang_harjul, kjp.barang_stok, kjp.qty FROM tbl_keranjang_pembelian kjp JOIN tbl_barang b ON kjp.barang_id = b.barang_id WHERE kjp.supplier_id = '$supplierId';")->result();
+        $data = $this->db->query("SELECT kjp.id, kjp.supplier_id, kjp.barang_id, b.barang_nama, kjp.barang_harjul, b.barang_stok, kjp.qty FROM tbl_keranjang_pembelian kjp JOIN tbl_barang b ON kjp.barang_id = b.barang_id WHERE kjp.supplier_id = '$supplierId';")->result();
 
         $hasil = [
             'status' => 'ok',

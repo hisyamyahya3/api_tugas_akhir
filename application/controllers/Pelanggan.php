@@ -113,7 +113,6 @@ class Pelanggan extends CI_Controller
         $pelangganId = $_POST['pelangganId'];
         $pelangganBarangId = $_POST['pelangganBarangId'];
         $pelangganBarangHarjul = $_POST['pelangganBarangHarjul'];
-        $pelangganBarangStok = $_POST['pelangganBarangStok'];
         $pelangganBarangQty = $_POST['pelangganBarangQty'];
         $created_at = date('Y-m-d h:m:s');
 
@@ -121,8 +120,8 @@ class Pelanggan extends CI_Controller
 
         if ($cekstok->barang_stok > 1) {
             $input = $this->db->query("INSERT INTO tbl_keranjang 
-            (pelanggan_id, barang_id, barang_harjul, barang_stok, qty, created_at) 
-            VALUES ('$pelangganId', '$pelangganBarangId', '$pelangganBarangHarjul', '$pelangganBarangStok', '$pelangganBarangQty', '$created_at')");
+            (pelanggan_id, barang_id, barang_harjul, qty, created_at) 
+            VALUES ('$pelangganId', '$pelangganBarangId', '$pelangganBarangHarjul', '$pelangganBarangQty', '$created_at')");
 
             if ($input) {
                 $hasil = [
@@ -153,7 +152,7 @@ class Pelanggan extends CI_Controller
             b.barang_id,
             b.barang_nama,
             kj.barang_harjul,
-            kj.barang_stok
+            b.barang_stok
         FROM 
             tbl_keranjang kj 
         JOIN 
@@ -197,7 +196,7 @@ class Pelanggan extends CI_Controller
     {
         $pelangganId = $_POST['pelangganId'];
 
-        $data = $this->db->query("SELECT kj.id, kj.pelanggan_id, kj.barang_id, b.barang_nama, kj.barang_harjul, kj.barang_stok, kj.qty FROM tbl_keranjang kj JOIN tbl_barang b ON kj.barang_id = b.barang_id WHERE kj.pelanggan_id = '$pelangganId'")->result();
+        $data = $this->db->query("SELECT kj.id, kj.pelanggan_id, kj.barang_id, b.barang_nama, kj.barang_harjul, b.barang_stok, kj.qty FROM tbl_keranjang kj JOIN tbl_barang b ON kj.barang_id = b.barang_id WHERE kj.pelanggan_id = '$pelangganId'")->result();
 
         $hasil = [
             'status' => 'ok',
