@@ -216,14 +216,18 @@ class Pelanggan extends CI_Controller
 
     public function deleteKeranjang()
     {
+        $pelanggan_id = $_POST['pelanggan_id'];
         $keranjang_id = $_POST['id'];
 
-        $input = $this->db->query("DELETE FROM tbl_keranjang WHERE id = '$keranjang_id'");
+        $input = $this->db->query("DELETE FROM tbl_keranjang WHERE pelanggan_id = '$pelanggan_id' AND id = '$keranjang_id'");
+
+        $latestData = $this->db->query("SELECT COUNT(*) AS latestCart FROM tbl_keranjang WHERE pelanggan_id = '$pelanggan_id'")->row();
 
         if ($input) {
             $hasil = [
                 'status' => 'ok',
-                'keterangan' => 'Keranjang berhasil dihapus'
+                'keterangan' => 'Keranjang berhasil dihapus',
+                'data' => $latestData
             ];
         } else {
             $hasil = [
