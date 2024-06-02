@@ -80,17 +80,21 @@ class Penjualan extends CI_Controller
 
                 $getLatestStock = $this->db->query("SELECT * FROM tbl_barang WHERE barang_id = $barangId")->row();
 
-                $finalStock = $getLatestStock->barang_stok - $item->qty;
+                $finalStock = $getLatestStock->barang_stok - $qty;
 
-                if (
-                    $getLatestStock->barang_stok >= $item->qty
-                    && $getLatestStock->barang_stok >= $getLatestStock->barang_min_stok
-                    && $finalStock > $getLatestStock->barang_min_stok
-                ) {
-                    $this->db->query("UPDATE tbl_barang SET barang_stok = $finalStock WHERE barang_id = $barangId");
-                } else {
+                if ($qty > $getLatestStock->barang_stok) {
                     throw new Exception("Stok barang $barangNama tidak tersedia!");
                 }
+
+                if ($getLatestStock->barang_min_stok == $getLatestStock->barang_stok) {
+                    throw new Exception("Stok barang $barangNama tidak tersedia!");
+                }
+
+                if ($finalStock < $getLatestStock->barang_min_stok) {
+                    throw new Exception("Stok barang $barangNama tidak tersedia!");
+                }
+
+                $this->db->query("UPDATE tbl_barang SET barang_stok = $finalStock WHERE barang_id = $barangId");
             }
 
             // Remove the trailing comma (added by the loop)
