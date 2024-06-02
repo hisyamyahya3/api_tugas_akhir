@@ -1,4 +1,5 @@
 <?php
+
 defined('BASEPATH') or exit('No direct script access allowed');
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
@@ -37,7 +38,7 @@ class Penjualan extends CI_Controller
                 return $result;
             }
 
-            $getLatestDate = $this->db->query("SELECT jual_nofak FROM tbl_jual ORDER BY jual_tanggal DESC LIMIT 1")->row();
+            $getLatestDate = $this->db->query("SELECT * FROM tbl_jual WHERE jual_tanggal = '$date' ORDER BY jual_nofak DESC LIMIT 1")->row();
 
             if ($getLatestDate) {
                 $tempDate = explodeDate($getLatestDate->jual_nofak); // tempDate[0] = date, tempDate[1] = month, tempDate[2] = year, tempDate[3] = auto increment
@@ -76,6 +77,20 @@ class Penjualan extends CI_Controller
 
                 // Append the item query to the template
                 $sqlTemplate .= $sqlItem;
+
+                $getLatestStock = $this->db->query("SELECT * FROM tbl_barang WHERE barang_id = $barangId")->row();
+
+                $finalStock = $getLatestStock->barang_stok - $item->qty;
+
+                if (
+                    $getLatestStock->barang_stok >= $item->qty
+                    && $getLatestStock->barang_stok >= $getLatestStock->barang_min_stok
+                    && $finalStock > $getLatestStock->barang_min_stok
+                ) {
+                    $this->db->query("UPDATE tbl_barang SET barang_stok = $finalStock WHERE barang_id = $barangId");
+                } else {
+                    throw new Exception("Stok barang $barangNama tidak tersedia!");
+                }
             }
 
             // Remove the trailing comma (added by the loop)
@@ -91,8 +106,8 @@ class Penjualan extends CI_Controller
             $this->db->trans_complete();
 
             echo json_encode(['status' => 'ok', 'message' => 'Berhasil']);
-        } catch (\Throwable $th) {
-            //throw $th;
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'not ok', 'message' => $e->getMessage()]);
         }
     }
 }
