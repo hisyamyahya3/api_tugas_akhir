@@ -160,7 +160,7 @@ class Supplier extends CI_Controller
         b.barang_id,
         b.barang_nama,
         kjp.barang_harjul,
-        kjp.barang_stok
+        b.barang_stok
     FROM 
         tbl_keranjang_pembelian kjp 
     JOIN 
@@ -202,7 +202,7 @@ class Supplier extends CI_Controller
     {
         $supplierId = $_POST['supplierId'];
 
-        $data = $this->db->query("SELECT kjp.id, kjp.supplier_id, kjp.barang_id, b.barang_nama, kjp.barang_harjul, kjp.barang_stok, kjp.qty FROM tbl_keranjang_pembelian kjp JOIN tbl_barang b ON kjp.barang_id = b.barang_id WHERE kjp.supplier_id = '$supplierId';")->result();
+        $data = $this->db->query("SELECT kjp.id, kjp.supplier_id, kjp.barang_id, b.barang_nama, kjp.barang_harjul, b.barang_stok, kjp.qty FROM tbl_keranjang_pembelian kjp JOIN tbl_barang b ON kjp.barang_id = b.barang_id WHERE kjp.supplier_id = '$supplierId';")->result();
 
         $hasil = [
             'status' => 'ok',

@@ -160,7 +160,7 @@ class Pelanggan extends CI_Controller
             b.barang_id,
             b.barang_nama,
             kj.barang_harjul,
-            kj.barang_stok
+            b.barang_stok
         FROM 
             tbl_keranjang kj 
         JOIN 
@@ -204,7 +204,7 @@ class Pelanggan extends CI_Controller
     {
         $pelangganId = $_POST['pelangganId'];
 
-        $data = $this->db->query("SELECT kj.id, kj.pelanggan_id, kj.barang_id, b.barang_nama, kj.barang_harjul, kj.barang_stok, kj.qty FROM tbl_keranjang kj JOIN tbl_barang b ON kj.barang_id = b.barang_id WHERE kj.pelanggan_id = '$pelangganId'")->result();
+        $data = $this->db->query("SELECT kj.id, kj.pelanggan_id, kj.barang_id, b.barang_nama, kj.barang_harjul, b.barang_stok, kj.qty FROM tbl_keranjang kj JOIN tbl_barang b ON kj.barang_id = b.barang_id WHERE kj.pelanggan_id = '$pelangganId'")->result();
 
         $hasil = [
             'status' => 'ok',
