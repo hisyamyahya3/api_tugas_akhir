@@ -58,7 +58,7 @@ class Penjualan extends CI_Controller
                 ->result();;
 
             // Prepare the SQL query template
-            $sqlTemplate = "INSERT INTO tbl_detail_jual (d_jual_nofak, d_jual_barang_id, d_jual_barang_nama, d_jual_barang_satuan, d_jual_barang_harpok, d_jual_barang_harjul, d_jual_qty, d_jual_diskon, d_jual_total) VALUES ";
+            $sqlTemplate = "INSERT INTO tbl_detail_jual (d_jual_nofak, d_jual_barang_id, d_jual_barang_nama, d_jual_barang_satuan, d_jual_barang_harpok, d_jual_barang_harjul, d_jual_qty, d_jual_total) VALUES ";
 
             // Iterate through the array and insert each item
             foreach ($cartsData as $item) {
@@ -69,11 +69,10 @@ class Penjualan extends CI_Controller
                 $barangHarpok = $item->barang_harpok;
                 $barangHarjul = $item->barang_harjul;
                 $qty = $item->qty;
-                $diskon = 0;
                 $total = $barangHarjul * $qty;
 
                 // Build the SQL query for each item
-                $sqlItem = "($nofak, $barangId, '$barangNama', '$barangSatuan', $barangHarpok, $barangHarjul, $qty, $diskon, $total), ";
+                $sqlItem = "($nofak, $barangId, '$barangNama', '$barangSatuan', $barangHarpok, $barangHarjul, $qty, $total), ";
 
                 // Append the item query to the template
                 $sqlTemplate .= $sqlItem;
@@ -86,6 +85,7 @@ class Penjualan extends CI_Controller
                 $this->db->query("INSERT INTO tbl_piutang (id_pelanggan, tgl_transaksi, jml_transaksi, jml_dibayar, jml_kekurangan) VALUES ($idPelanggan, '$created_at', $hargaPenjualan, $jmlUang, $jmlKembalian)");
             }
 
+            $this->db->query("DELETE FROM tbl_keranjang WHERE pelanggan_id = $idPelanggan");
             $this->db->query("INSERT INTO tbl_jual (jual_nofak, jual_tanggal, jual_total, jual_jml_uang, jual_kembalian, jual_user_id, jual_keterangan, jual_id_pelanggan) VALUES ('$formattedNofak', '$date', $hargaPenjualan, $jmlUang, $jmlKembalian, 1, '$keterangan', $idPelanggan)");
             $this->db->query($sqlInsertDetailJual);
             $this->db->trans_complete();
