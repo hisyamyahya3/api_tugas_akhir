@@ -54,8 +54,7 @@ class Penjualan extends CI_Controller
             $cartsData = $this->db->query("SELECT tk.barang_id, tb.barang_nama, tb.barang_harpok, tb.barang_harjul, tk.qty 
                 FROM tbl_keranjang tk
                 JOIN tbl_barang tb ON tk.barang_id = tb.barang_id
-                WHERE tk.pelanggan_id = $idPelanggan
-                ")
+                WHERE tk.pelanggan_id = $idPelanggan")
                 ->result();;
 
             // Prepare the SQL query template
@@ -107,9 +106,14 @@ class Penjualan extends CI_Controller
             $this->db->query("DELETE FROM tbl_keranjang WHERE pelanggan_id = $idPelanggan");
             $this->db->query("INSERT INTO tbl_jual (jual_nofak, jual_tanggal, jual_total, jual_jml_uang, jual_kembalian, jual_user_id, jual_keterangan, jual_id_pelanggan) VALUES ('$formattedNofak', '$date', $hargaPenjualan, $jmlUang, $jmlKembalian, 1, '$keterangan', $idPelanggan)");
             $this->db->query($sqlInsertDetailJual);
+            $data = $this->db->query("SELECT tj.*, tp.pelanggan_nama 
+                FROM tbl_jual tj 
+                JOIN tbl_pelanggan tp ON tj.jual_id_pelanggan = tp.pelanggan_id
+                WHERE tj.jual_id_pelanggan = '$idPelanggan' AND tj.jual_nofak = '$formattedNofak'")
+                ->row();
             $this->db->trans_complete();
 
-            echo json_encode(['status' => 'ok', 'message' => 'Berhasil']);
+            echo json_encode(['status' => 'ok', 'message' => 'Berhasil', 'data' => $data]);
         } catch (Exception $e) {
             echo json_encode(['status' => 'not ok', 'message' => $e->getMessage()]);
         }
