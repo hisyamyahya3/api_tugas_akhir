@@ -240,8 +240,6 @@ class Supplier extends CI_Controller
         $qty = $_POST['qty'];
         $action = $_POST['action'];
 
-        // if action?? plus =???? $qty + 1 else qty - 1
-
         if ($action == 'plus') {
             $qty += 1;
         } else {
