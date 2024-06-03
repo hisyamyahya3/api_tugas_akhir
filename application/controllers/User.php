@@ -4,21 +4,55 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
-class User extends CI_Controller 
+class User extends CI_Controller
 {
-
-    public function regis () {
-        $nama = $_POST['nama'];
+    public function register()
+    {
+        $name = ucwords($_POST['name']);
         $email = $_POST['email'];
-        $pass = $_POST['pass'];
+        $passInput = $_POST['password'];
 
-        $input = $this->db->query("INSERT INTO")
+        try {
+            $this->db->trans_start();
+
+            $emailExist = $this->db->query("SELECT * FROM tbl_user WHERE email = '$email'")->row();
+
+            // Validate input
+            if (empty($name)) {
+                $error = 'Nama wajib diisi!';
+            } elseif (empty($email)) {
+                $error = 'Email wajib diisi!';
+            } elseif (empty($passInput)) {
+                $error = 'Password wajib diisi!';
+            } elseif (strlen($name) > 20) {
+                $error = 'Nama maksimal 20 karakter!';
+            } elseif (strlen($passInput) < 8) {
+                $error = 'Password minimal 8 karakter!';
+            } elseif ($emailExist) {
+                $error = 'Email sudah digunakan!';
+            }
+
+            // If there is an error, return it
+            if (isset($error) && $error) {
+                throw new Exception($error);
+            }
+
+            // Sanitize input
+            $hashedPassword = password_hash($passInput, PASSWORD_DEFAULT);
+
+            // Insert into database
+            $this->db->query("INSERT INTO tbl_user (full_name, email, password) VALUES ('$name', '$email', '$hashedPassword')");
+            $this->db->trans_complete();
+            
+            echo json_encode(['status' => 'ok', 'message' => 'Berhasil registrasi']);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'not ok', 'message' => $e->getMessage()]);
+        }
     }
 
-    public function login () {
+    public function login()
+    {
         $email = $_POST['email'];
         $pass = $_POST['pass'];
-
-
     }
 }
