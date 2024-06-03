@@ -43,7 +43,7 @@ class User extends CI_Controller
             // Insert into database
             $this->db->query("INSERT INTO tbl_user (full_name, email, password) VALUES ('$name', '$email', '$hashedPassword')");
             $this->db->trans_complete();
-            
+
             echo json_encode(['status' => 'ok', 'message' => 'Berhasil registrasi']);
         } catch (Exception $e) {
             echo json_encode(['status' => 'not ok', 'message' => $e->getMessage()]);
@@ -53,6 +53,32 @@ class User extends CI_Controller
     public function login()
     {
         $email = $_POST['email'];
-        $pass = $_POST['pass'];
+        $passInput = $_POST['password'];
+
+        try {
+            $this->db->trans_start();
+
+            if (empty($email)) {
+                $error = 'Email belum diisi!';
+            } elseif (empty($passInput)) {
+                $error = 'Password belum diisi!';
+            }
+
+            if (isset($error) && $error) {
+                throw new Exception($error);
+            }
+
+            $checkUser = $this->db->query("SELECT * FROM tbl_user WHERE email = '$email'")->row();
+
+            $this->db->trans_complete();
+            // Verify the password
+            if (isset($checkUser) && password_verify($passInput, $checkUser->password)) {
+                echo json_encode(['message' => 'Berhasil login', 'status' => 'ok']);
+            } else {
+                echo json_encode(['message' => 'Email atau Password salah', 'status' => 'not ok']);
+            }
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'not ok', 'message' => $e->getMessage()]);
+        }
     }
 }
