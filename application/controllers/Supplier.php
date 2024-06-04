@@ -8,7 +8,8 @@ class Supplier extends CI_Controller
 {
     public function index()
     {
-        $data = $this->db->query("SELECT * FROM tbl_suplier")->result();
+        $userID = $_POST['userID'];
+        $data = $this->db->query("SELECT * FROM tbl_suplier WHERE user_id = $userID")->result();
 
         $hasil = [
             'status' => 'ok',
@@ -169,7 +170,6 @@ class Supplier extends CI_Controller
         tbl_barang b ON kjp.barang_id = b.barang_id 
     ORDER BY 
         s.suplier_id";
-
 
         $query = $this->db->query($sql);
 

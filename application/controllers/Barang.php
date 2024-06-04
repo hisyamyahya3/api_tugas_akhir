@@ -8,8 +8,13 @@ class Barang extends CI_Controller
 {
     public function index()
     {
-        $data = $this->db->query("SELECT b.barang_id, b.barang_nama, b.barang_satuan, b.barang_harpok, b.barang_harjul, b.barang_harjul_grosir, b.barang_stok, b.barang_min_stok, b.barang_kategori_id, k.kategori_id, k.kategori_nama FROM tbl_barang b JOIN tbl_kategori k ON b.barang_kategori_id = k.kategori_id;")->result();
-    
+        $userID = $_POST['userID'];
+        $data = $this->db->query("SELECT b.barang_id, b.barang_nama, b.barang_satuan, b.barang_harpok, b.barang_harjul, b.barang_harjul_grosir, b.barang_stok, b.barang_min_stok, b.barang_kategori_id, k.kategori_id, k.kategori_nama 
+            FROM tbl_barang b 
+            JOIN tbl_kategori k ON b.barang_kategori_id = k.kategori_id
+            WHERE b.barang_user_id = $userID")
+            ->result();
+
         $hasil = [
             'status' => 'ok',
             'data' => $data
@@ -80,9 +85,10 @@ class Barang extends CI_Controller
 
     public function search()
     {
+        $userID = $_POST['userID'];
         $namaBarang = $_POST['nama_barang'];
 
-        $data = $this->db->query("SELECT * FROM tbl_barang WHERE barang_nama LIKE '%$namaBarang%'")->result();
+        $data = $this->db->query("SELECT * FROM tbl_barang WHERE barang_nama LIKE '%$namaBarang%' AND barang_user_id = $userID")->result();
 
         if (count($data) == 0) {
             $hasil = [

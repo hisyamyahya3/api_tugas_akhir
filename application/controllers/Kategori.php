@@ -8,8 +8,9 @@ class Kategori extends CI_Controller
 {
     public function index()
     {
-        $data = $this->db->query("SELECT * FROM tbl_kategori")->result();
-    
+        $userID = $_POST['userID'];
+        $data = $this->db->query("SELECT * FROM tbl_kategori WHERE user_id = $userID")->result();
+
         $hasil = [
             'status' => 'ok',
             'data' => $data
@@ -102,5 +103,4 @@ class Kategori extends CI_Controller
 
         echo json_encode($hasil);
     }
-
 }

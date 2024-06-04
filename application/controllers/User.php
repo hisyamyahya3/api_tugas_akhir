@@ -73,7 +73,7 @@ class User extends CI_Controller
             $this->db->trans_complete();
             // Verify the password
             if (isset($checkUser) && password_verify($passInput, $checkUser->password)) {
-                echo json_encode(['message' => 'Berhasil login', 'status' => 'ok']);
+                echo json_encode(['message' => 'Berhasil login', 'status' => 'ok', 'data' => $checkUser]);
             } else {
                 echo json_encode(['message' => 'Email atau Password salah', 'status' => 'not ok']);
             }
