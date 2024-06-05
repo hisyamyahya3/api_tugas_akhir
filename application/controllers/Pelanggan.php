@@ -45,8 +45,9 @@ class Pelanggan extends CI_Controller
     public function search()
     {
         $namaPelanggan = $_POST['nama_pelanggan'];
+        $userID = $_POST['userID'];
 
-        $data = $this->db->query("SELECT * FROM tbl_pelanggan WHERE pelanggan_nama LIKE '%$namaPelanggan%'")->result();
+        $data = $this->db->query("SELECT * FROM tbl_pelanggan WHERE pelanggan_nama LIKE '%$namaPelanggan%' AND user_id = $userID")->result();
 
         if (count($data) == 0) {
             $hasil = [

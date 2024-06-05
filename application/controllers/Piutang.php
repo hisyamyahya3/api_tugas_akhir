@@ -8,7 +8,12 @@ class Piutang extends CI_Controller
 {
     public function index()
     {
-        $data = $this->db->query("SELECT p.pelanggan_nama, c.tgl_transaksi, c.jml_transaksi, c.jml_dibayar, c.jml_kekurangan FROM tbl_piutang c JOIN tbl_pelanggan p ON p.pelanggan_id = c.id_pelanggan;")->result();
+        $userID = $_POST['userID'];
+        $data = $this->db->query("SELECT p.pelanggan_nama, c.tgl_transaksi, c.jml_transaksi, c.jml_dibayar, c.jml_kekurangan 
+            FROM tbl_piutang c 
+            JOIN tbl_pelanggan p ON p.pelanggan_id = c.id_pelanggan
+            WHERE c.supplier_id = $userID")
+            ->result();
     
         $hasil = [
             'status' => 'ok',

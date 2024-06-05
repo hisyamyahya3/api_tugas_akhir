@@ -86,7 +86,7 @@ class Pembelian extends CI_Controller
             $sqlInsertDetailJual = rtrim($sqlTemplate, ', ');
 
             if (isNegative($jmlKembalian) == 1) {
-                $this->db->query("INSERT INTO tbl_hutang (supplier_id, tgl_transaksi, jml_transaksi, jml_dibayar, jml_kekurangan) VALUES ($idSupplier, '$created_at', $totalPembelian, $jmlUang, $jmlKembalian)");
+                $this->db->query("INSERT INTO tbl_hutang (supplier_id, beli_nofak, tgl_transaksi, jml_transaksi, jml_dibayar, jml_kekurangan) VALUES ($idSupplier, '$formattedNofak', '$created_at', $totalPembelian, $jmlUang, $jmlKembalian)");
             }
 
             $this->db->query("DELETE FROM tbl_keranjang_pembelian WHERE supplier_id = $idSupplier");

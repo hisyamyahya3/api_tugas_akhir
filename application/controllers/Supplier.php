@@ -45,8 +45,9 @@ class Supplier extends CI_Controller
     public function search()
     {
         $namaSupplier = $_POST['nama_supplier'];
+        $userID = $_POST['userID'];
 
-        $data = $this->db->query("SELECT * FROM tbl_suplier WHERE suplier_nama LIKE '%$namaSupplier%'")->result();
+        $data = $this->db->query("SELECT * FROM tbl_suplier WHERE suplier_nama LIKE '%$namaSupplier%' AND user_id = $userID")->result();
 
         if (count($data) == 0) {
             $hasil = [
