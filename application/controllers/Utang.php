@@ -49,4 +49,37 @@ class Utang extends CI_Controller
 
         echo json_encode($hasil);
     }
+
+    public function transaction()
+    {
+        $utangID = $_POST['utangID'];
+        $beliNofak = $_POST['beliNofak'];
+        $jmlUang = (int) $_POST['jmlUang'];
+
+        try {
+            $this->db->trans_start();
+
+            $utang = $this->db->query("SELECT * FROM tbl_hutang WHERE id = $utangID AND beli_nofak = '$beliNofak'")->row();
+
+            $outstanding = abs((int) $utang->jml_kekurangan);
+
+            if ($jmlUang !== $outstanding) {
+                throw new Exception("Harap membayar sesuai dengan nominal kekurangan!");
+            }
+
+            $this->db->query("UPDATE tbl_beli SET beli_keterangan = 'LUNAS' WHERE beli_nofak = '$beliNofak'");
+            $this->db->query("UPDATE tbl_hutang SET jml_angsuran = $jmlUang, status = 'LUNAS' WHERE id = $utangID AND beli_nofak = '$beliNofak'");
+
+            $data = $this->db->query("SELECT h.beli_nofak, s.suplier_nama AS nama_supplier, h.jml_angsuran
+                FROM tbl_hutang h
+                JOIN tbl_suplier s ON h.supplier_id = s.suplier_id
+                WHERE h.id = $utangID AND h.beli_nofak = '$beliNofak'")->row();
+
+            $this->db->trans_complete();
+
+            echo json_encode(['status' => 'ok', 'message' => 'Berhasil', 'data' => $data]);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'not ok', 'message' => $e->getMessage()]);
+        }
+    }
 }
