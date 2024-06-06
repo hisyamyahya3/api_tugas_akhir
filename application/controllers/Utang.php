@@ -27,7 +27,7 @@ class Utang extends CI_Controller
     public function detail()
     {
         $utangID = $_POST['utangID'];
-        $transaction = $this->db->query("SELECT u.id, u.beli_nofak, u.supplier_id, s.suplier_nama, u.tgl_transaksi, u.jml_transaksi, u.jml_dibayar, u.jml_kekurangan 
+        $transaction = $this->db->query("SELECT u.id, u.beli_nofak, u.supplier_id, s.suplier_nama, u.tgl_transaksi, u.jml_transaksi, u.jml_dibayar, u.jml_kekurangan, u.status 
             FROM tbl_hutang u 
             JOIN tbl_suplier s ON u.supplier_id = s.suplier_id
             WHERE u.id = $utangID")
