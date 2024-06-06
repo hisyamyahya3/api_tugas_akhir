@@ -10,12 +10,14 @@ class Penjualan extends CI_Controller
     public function insert()
     {
         $idPelanggan = $_POST['idPel'];
+        $userID = $_POST['userID'];
         $hargaPenjualan = $_POST['hargaPenjualan'];
         $jmlUang = $_POST['jmlUang'];
         $jmlKembalian = $_POST['jmlKembalian'];
         $created_at = date('Y-m-d h:m:s');
         $date = date('Y-m-d');
-        $keterangan = ($jmlKembalian == 0) ? 'Bayar lunas' : 'Bayar kurang';
+        $isDebt = ($jmlKembalian == 0) ? 0 : 1;
+        $keterangan = ($jmlKembalian == 0) ? 'LUNAS' : 'KURANG';
 
         try {
             $this->db->trans_start();
@@ -62,7 +64,6 @@ class Penjualan extends CI_Controller
 
             // Iterate through the array and insert each item
             foreach ($cartsData as $item) {
-                $nofak = $formattedNofak;
                 $barangId = $item->barang_id;
                 $barangNama = $item->barang_nama;
                 $barangSatuan = 'pcs';
@@ -72,7 +73,7 @@ class Penjualan extends CI_Controller
                 $total = $barangHarjul * $qty;
 
                 // Build the SQL query for each item
-                $sqlItem = "($nofak, $barangId, '$barangNama', '$barangSatuan', $barangHarpok, $barangHarjul, $qty, $total), ";
+                $sqlItem = "('$formattedNofak', $barangId, '$barangNama', '$barangSatuan', $barangHarpok, $barangHarjul, $qty, $total), ";
 
                 // Append the item query to the template
                 $sqlTemplate .= $sqlItem;
@@ -100,11 +101,11 @@ class Penjualan extends CI_Controller
             $sqlInsertDetailJual = rtrim($sqlTemplate, ', ');
 
             if (isNegative($jmlKembalian) == 1) {
-                $this->db->query("INSERT INTO tbl_piutang (id_pelanggan, tgl_transaksi, jml_transaksi, jml_dibayar, jml_kekurangan) VALUES ($idPelanggan, '$created_at', $hargaPenjualan, $jmlUang, $jmlKembalian)");
+                $this->db->query("INSERT INTO tbl_piutang (id_pelanggan, jual_nofak, tgl_transaksi, jml_transaksi, jml_dibayar, jml_kekurangan, status) VALUES ($idPelanggan, '$formattedNofak', '$created_at', $hargaPenjualan, $jmlUang, $jmlKembalian, 'BELUM LUNAS')");
             }
 
             $this->db->query("DELETE FROM tbl_keranjang WHERE pelanggan_id = $idPelanggan");
-            $this->db->query("INSERT INTO tbl_jual (jual_nofak, jual_tanggal, jual_total, jual_jml_uang, jual_kembalian, jual_user_id, jual_keterangan, jual_id_pelanggan) VALUES ('$formattedNofak', '$date', $hargaPenjualan, $jmlUang, $jmlKembalian, 1, '$keterangan', $idPelanggan)");
+            $this->db->query("INSERT INTO tbl_jual (jual_nofak, jual_tanggal, jual_total, jual_jml_uang, jual_kembalian, is_debt, jual_user_id, jual_keterangan, jual_id_pelanggan) VALUES ('$formattedNofak', '$date', $hargaPenjualan, $jmlUang, $jmlKembalian, $isDebt, $userID, '$keterangan', $idPelanggan)");
             $this->db->query($sqlInsertDetailJual);
             $data = $this->db->query("SELECT tj.*, tp.pelanggan_nama 
                 FROM tbl_jual tj 

@@ -12,7 +12,8 @@ class Utang extends CI_Controller
         $data = $this->db->query("SELECT u.id, u.supplier_id, s.suplier_nama, u.tgl_transaksi, u.jml_transaksi, u.jml_dibayar, u.jml_kekurangan 
             FROM tbl_hutang u 
             JOIN tbl_suplier s ON u.supplier_id = s.suplier_id
-            WHERE s.user_id = $userID")
+            JOIN tbl_beli b ON u.beli_nofak = b.beli_nofak
+            WHERE b.beli_user_id = $userID")
             ->result();
 
         $hasil = [
@@ -52,8 +53,8 @@ class Utang extends CI_Controller
 
     public function transaction()
     {
-        $utangID = $_POST['utangID'];
-        $beliNofak = $_POST['beliNofak'];
+        $utangID = $_POST['id'];
+        $beliNofak = $_POST['noTransaksi'];
         $jmlUang = (int) $_POST['jmlUang'];
 
         try {
@@ -61,7 +62,7 @@ class Utang extends CI_Controller
 
             $utang = $this->db->query("SELECT * FROM tbl_hutang WHERE id = $utangID AND beli_nofak = '$beliNofak'")->row();
 
-            $outstanding = abs((int) $utang->jml_kekurangan);
+            $outstanding = abs((int) (isset($utang) ? (isset($utang->jml_kekurangan) ? $utang->jml_kekurangan : 0) : 0));
 
             if ($jmlUang !== $outstanding) {
                 throw new Exception("Harap membayar sesuai dengan nominal kekurangan!");
@@ -70,7 +71,7 @@ class Utang extends CI_Controller
             $this->db->query("UPDATE tbl_beli SET beli_keterangan = 'LUNAS' WHERE beli_nofak = '$beliNofak'");
             $this->db->query("UPDATE tbl_hutang SET jml_angsuran = $jmlUang, status = 'LUNAS' WHERE id = $utangID AND beli_nofak = '$beliNofak'");
 
-            $data = $this->db->query("SELECT h.beli_nofak, s.suplier_nama AS nama_supplier, h.jml_angsuran
+            $data = $this->db->query("SELECT h.beli_nofak AS noTransaksi, s.suplier_nama AS nama, h.jml_angsuran
                 FROM tbl_hutang h
                 JOIN tbl_suplier s ON h.supplier_id = s.suplier_id
                 WHERE h.id = $utangID AND h.beli_nofak = '$beliNofak'")->row();

@@ -10,12 +10,14 @@ class Pembelian extends CI_Controller
     public function insert()
     {
         $idSupplier = $_POST['idSupplier'];
+        $userID = $_POST['userID'];
         $totalPembelian = $_POST['totalPembelian'];
         $jmlUang = $_POST['jmlUang'];
         $jmlKembalian = $_POST['jmlKembalian'];
         $created_at = date('Y-m-d h:m:s');
         $date = date('Y-m-d');
-        // $keterangan = ($jmlKembalian == 0) ? 'Bayar lunas' : 'Bayar kurang';
+        $isDebt = ($jmlKembalian == 0) ? 0 : 1;
+        $keterangan = ($jmlKembalian == 0) ? 'LUNAS' : 'KURANG';
 
         try {
             $this->db->trans_start();
@@ -86,11 +88,11 @@ class Pembelian extends CI_Controller
             $sqlInsertDetailJual = rtrim($sqlTemplate, ', ');
 
             if (isNegative($jmlKembalian) == 1) {
-                $this->db->query("INSERT INTO tbl_hutang (supplier_id, beli_nofak, tgl_transaksi, jml_transaksi, jml_dibayar, jml_kekurangan) VALUES ($idSupplier, '$formattedNofak', '$created_at', $totalPembelian, $jmlUang, $jmlKembalian)");
+                $this->db->query("INSERT INTO tbl_hutang (supplier_id, beli_nofak, tgl_transaksi, jml_transaksi, jml_dibayar, jml_kekurangan, status) VALUES ($idSupplier, '$formattedNofak', '$created_at', $totalPembelian, $jmlUang, $jmlKembalian, 'BELUM LUNAS')");
             }
 
             $this->db->query("DELETE FROM tbl_keranjang_pembelian WHERE supplier_id = $idSupplier");
-            $this->db->query("INSERT INTO tbl_beli (beli_nofak, beli_tanggal, beli_suplier_id, beli_user_id, beli_total, beli_jml_uang, beli_kembalian) VALUES ('$formattedNofak', '$date', $idSupplier, 1, $totalPembelian, $jmlUang, $jmlKembalian)");
+            $this->db->query("INSERT INTO tbl_beli (beli_nofak, beli_tanggal, beli_suplier_id, beli_user_id, beli_total, beli_jml_uang, beli_kembalian, is_debt, beli_keterangan) VALUES ('$formattedNofak', '$date', $idSupplier, $userID, $totalPembelian, $jmlUang, $jmlKembalian, $isDebt, '$keterangan')");
             $this->db->query($sqlInsertDetailJual);
 
             $data = $this->db->query("SELECT tb.*, ts.suplier_nama AS nama_supplier
