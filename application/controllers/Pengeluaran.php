@@ -8,7 +8,8 @@ class Pengeluaran extends CI_Controller
 {
     public function index()
     {
-        $data = $this->db->query("SELECT * FROM tbl_pengeluaran")->result();
+        $userID = $_POST['userID'];
+        $data = $this->db->query("SELECT * FROM tbl_pengeluaran WHERE user_id = $userID")->result();
     
         $hasil = [
             'status' => 'ok',
@@ -22,8 +23,9 @@ class Pengeluaran extends CI_Controller
     {
         $uraian = $_POST['uraian'];
         $nominal = $_POST['nominal'];
+        $userID = $_POST['userID'];
 
-        $input = $this->db->query("INSERT INTO tbl_pengeluaran (uraian, nominal) VALUES ('$uraian', '$nominal')");
+        $input = $this->db->query("INSERT INTO tbl_pengeluaran (uraian, nominal, user_id) VALUES ('$uraian', '$nominal', '$userID')");
 
         if ($input) {
             $hasil = [

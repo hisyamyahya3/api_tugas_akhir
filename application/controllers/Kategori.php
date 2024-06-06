@@ -22,8 +22,9 @@ class Kategori extends CI_Controller
     public function insert()
     {
         $kategori_nama = $_POST['kategori_nama'];
+        $userID = $_POST['userID'];
 
-        $input = $this->db->query("INSERT INTO tbl_kategori (kategori_nama) VALUES ('$kategori_nama')");
+        $input = $this->db->query("INSERT INTO tbl_kategori (kategori_nama, user_id) VALUES ('$kategori_nama', '$userID')");
 
         if ($input) {
             $hasil = [
@@ -86,8 +87,9 @@ class Kategori extends CI_Controller
     public function search()
     {
         $namaKategori = $_POST['kategori_nama'];
+        $userID = $_POST['userID'];
 
-        $data = $this->db->query("SELECT * FROM tbl_kategori WHERE kategori_nama LIKE '%$namaKategori%'")->result();
+        $data = $this->db->query("SELECT * FROM tbl_kategori WHERE user_id = '$userID' AND kategori_nama LIKE '%$namaKategori%'")->result();
 
         if (count($data) == 0) {
             $hasil = [

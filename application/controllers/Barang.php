@@ -33,10 +33,11 @@ class Barang extends CI_Controller
         $barang_stok = $_POST['barang_stok'];
         $barang_min_stok = $_POST['barang_min_stok'];
         $barang_kategori_id = $_POST['barang_kategori_id'];
+        $userID = $_POST['userID'];
 
         $input = $this->db->query("INSERT INTO tbl_barang 
-            (barang_nama, barang_satuan, barang_harpok, barang_harjul, barang_harjul_grosir, barang_stok, barang_min_stok, barang_kategori_id) 
-            VALUES ('$barang_nama', '$barang_satuan', '$barang_harpok', '$barang_harjul', '$barang_harjul_grosir', '$barang_stok', '$barang_min_stok', '$barang_kategori_id')");
+            (barang_nama, barang_satuan, barang_harpok, barang_harjul, barang_harjul_grosir, barang_stok, barang_min_stok, barang_kategori_id, barang_user_id) 
+            VALUES ('$barang_nama', '$barang_satuan', '$barang_harpok', '$barang_harjul', '$barang_harjul_grosir', '$barang_stok', '$barang_min_stok', '$barang_kategori_id', '$userID')");
 
         if ($input) {
             $hasil = [
@@ -65,8 +66,9 @@ class Barang extends CI_Controller
         $barang_stok = $_POST['barang_stok'];
         $barang_min_stok = $_POST['barang_min_stok'];
         $barang_kategori_id = $_POST['barang_kategori_id'];
+        $barang_last_update = date('Y-m-d h:m:s');
 
-        $input = $this->db->query("UPDATE tbl_barang SET barang_nama = '$barang_nama', barang_satuan = '$barang_satuan', barang_harpok = '$barang_harpok', barang_harjul = '$barang_harjul', barang_harjul_grosir = '$barang_harjul_grosir', barang_stok = '$barang_stok', barang_min_stok = '$barang_min_stok', barang_kategori_id = '$barang_kategori_id' WHERE barang_id = $barang_id");
+        $input = $this->db->query("UPDATE tbl_barang SET barang_nama = '$barang_nama', barang_satuan = '$barang_satuan', barang_harpok = '$barang_harpok', barang_harjul = '$barang_harjul', barang_harjul_grosir = '$barang_harjul_grosir', barang_stok = '$barang_stok', barang_min_stok = '$barang_min_stok', barang_kategori_id = '$barang_kategori_id', barang_tgl_last_update = '$barang_last_update' WHERE barang_id = $barang_id");
 
         if ($input) {
             $hasil = [
@@ -129,8 +131,9 @@ class Barang extends CI_Controller
     public function searchTable()
     {
         $namaBarang = $_POST['nama_barang'];
+        $userID = $_POST['userID'];
 
-        $data = $this->db->query("SELECT b.barang_id, b.barang_nama, b.barang_satuan, b.barang_harpok, b.barang_harjul, b.barang_harjul_grosir, b.barang_stok, b.barang_min_stok, b.barang_kategori_id, k.kategori_id, k.kategori_nama FROM tbl_barang b JOIN tbl_kategori k ON b.barang_kategori_id = k.kategori_id WHERE b.barang_nama LIKE '%$namaBarang%'")->result();
+        $data = $this->db->query("SELECT b.barang_id, b.barang_nama, b.barang_satuan, b.barang_harpok, b.barang_harjul, b.barang_harjul_grosir, b.barang_stok, b.barang_min_stok, b.barang_kategori_id, k.kategori_id, k.kategori_nama FROM tbl_barang b JOIN tbl_kategori k ON b.barang_kategori_id = k.kategori_id WHERE b.barang_nama LIKE '%$namaBarang%' AND b.barang_user_id = $userID")->result();
 
         if (count($data) == 0) {
             $hasil = [

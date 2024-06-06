@@ -24,8 +24,9 @@ class Supplier extends CI_Controller
         $suplier_nama = $_POST['suplier_nama'];
         $suplier_alamat = $_POST['suplier_alamat'];
         $suplier_notelp = $_POST['suplier_notelp'];
+        $userID = $_POST['userID'];
 
-        $input = $this->db->query("INSERT INTO tbl_suplier (suplier_nama, suplier_alamat, suplier_notelp) VALUES ('$suplier_nama', '$suplier_alamat', '$suplier_notelp')");
+        $input = $this->db->query("INSERT INTO tbl_suplier (suplier_nama, suplier_alamat, suplier_notelp, user_id) VALUES ('$suplier_nama', '$suplier_alamat', '$suplier_notelp', '$userID')");
 
         if ($input) {
             $hasil = [

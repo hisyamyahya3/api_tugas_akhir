@@ -9,7 +9,8 @@ class Pelanggan extends CI_Controller
 {
     public function index()
     {
-        $data = $this->db->query("SELECT * FROM tbl_pelanggan")->result();
+        $userID = $_POST['userID'];
+        $data = $this->db->query("SELECT * FROM tbl_pelanggan WHERE user_id = $userID")->result();
 
         $hasil = [
             'status' => 'ok',
@@ -24,8 +25,9 @@ class Pelanggan extends CI_Controller
         $pelanggan_nama = $_POST['pelanggan_nama'];
         $pelanggan_alamat = $_POST['pelanggan_alamat'];
         $pelanggan_notelp = $_POST['pelanggan_notelp'];
+        $userID = $_POST['userID'];
 
-        $input = $this->db->query("INSERT INTO tbl_pelanggan (pelanggan_nama, pelanggan_alamat, pelanggan_notelp) VALUES ('$pelanggan_nama', '$pelanggan_alamat', '$pelanggan_notelp')");
+        $input = $this->db->query("INSERT INTO tbl_pelanggan (pelanggan_nama, pelanggan_alamat, pelanggan_notelp, user_id) VALUES ('$pelanggan_nama', '$pelanggan_alamat', '$pelanggan_notelp', '$userID')");
 
         if ($input) {
             $hasil = [
