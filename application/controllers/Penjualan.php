@@ -119,4 +119,23 @@ class Penjualan extends CI_Controller
             echo json_encode(['status' => 'not ok', 'message' => $e->getMessage()]);
         }
     }
+
+    public function laporan() 
+    {
+        $userID = $_POST['userID'];
+        $data = $this->db->query("SELECT p.pelanggan_id, p.pelanggan_nama, j.jual_nofak, j.jual_tanggal, j.jual_jml_uang, dj.d_jual_barang_nama, dj.d_jual_barang_harjul, dj.d_jual_qty, dj.d_jual_total, j.jual_keterangan
+            FROM tbl_pelanggan p 
+            JOIN tbl_jual j 
+            ON p.pelanggan_id = j.jual_id_pelanggan 
+            JOIN tbl_detail_jual dj 
+            ON j.jual_nofak = dj.d_jual_nofak
+            WHERE j.jual_user_id = $userID")->result();
+
+        $hasil = [
+            'status' => 'ok',
+            'data' => $data
+        ];
+
+        echo json_encode($hasil);
+    }
 }
