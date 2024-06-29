@@ -129,4 +129,31 @@ class Pembelian extends CI_Controller
 
         echo json_encode($hasil);
     }
+
+    public function filterTanggal() 
+    {
+        $userID = $_POST['userID'];
+        $dariTgl = $_POST['dariTgl'];
+        $sampaiTgl = $_POST['sampaiTgl'];
+        $formattedFromDate = date('Y-m-d', strtotime($dariTgl));
+        $formattedToDate = date('Y-m-d', strtotime($sampaiTgl));
+
+        $data = $this->db->query("SELECT s.suplier_id, s.suplier_nama, b.beli_nofak, b.beli_tanggal, b.beli_jml_uang, b.beli_total, tb.barang_nama, db.d_beli_barang_id, db.d_beli_harga, db.d_beli_jumlah, b.beli_keterangan
+            FROM tbl_suplier s 
+            JOIN tbl_beli b
+            ON s.suplier_id = b.beli_suplier_id 
+            JOIN tbl_detail_beli db
+            ON b.beli_nofak = db.d_beli_nofak
+            JOIN tbl_barang tb
+            ON db.d_beli_barang_id = tb.barang_id
+            WHERE b.beli_user_id = $userID
+            AND b.beli_tanggal >= '$formattedFromDate' AND b.beli_tanggal <= '$formattedToDate'")->result();
+
+        $hasil = [
+            'status' => 'ok',
+            'data' => $data
+        ];
+
+        echo json_encode($hasil);
+    }
 }
