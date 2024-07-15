@@ -40,6 +40,12 @@ class Penjualan extends CI_Controller
                 return $result;
             }
 
+            $getTotalTransaction = $this->db->query("SELECT COUNT(jual_nofak) AS total_transaction FROM tbl_jual WHERE jual_user_id = $userID AND jual_tanggal = '$date'")->row();
+
+            if ($getTotalTransaction->total_transaction == 10) {
+                throw new Exception("Teleh melewati batas transaksi harian!");
+            }
+
             $getLatestDate = $this->db->query("SELECT * FROM tbl_jual WHERE jual_tanggal = '$date' ORDER BY jual_nofak DESC LIMIT 1")->row();
 
             if ($getLatestDate) {

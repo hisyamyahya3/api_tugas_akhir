@@ -41,6 +41,12 @@ class Pembelian extends CI_Controller
                 return $result;
             }
 
+            $getTotalTransaction = $this->db->query("SELECT COUNT(beli_nofak) AS total_transaction FROM tbl_beli WHERE beli_user_id = $userID AND beli_tanggal = '$date'")->row();
+
+            if ($getTotalTransaction->total_transaction == 10) {
+                throw new Exception("Teleh melewati batas transaksi harian!");
+            }
+
             $getLatestDate = $this->db->query("SELECT * FROM tbl_beli WHERE beli_tanggal = '$date' ORDER BY beli_nofak DESC LIMIT 1")->row();
 
             if ($getLatestDate) {
