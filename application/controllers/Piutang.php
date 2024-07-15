@@ -82,4 +82,31 @@ class Piutang extends CI_Controller
             echo json_encode(['status' => 'not ok', 'message' => $e->getMessage()]);
         }
     }
+
+    public function search () {
+
+        $userID = $_POST['userID'];
+        $pelanggan_nama = $_POST['pelanggan_nama'];
+
+        $data = $this->db->query("SELECT c.id, p.pelanggan_nama, c.tgl_transaksi, c.jml_transaksi, c.jml_dibayar, c.jml_kekurangan 
+            FROM tbl_piutang c 
+            JOIN tbl_pelanggan p 
+            ON p.pelanggan_id = c.id_pelanggan 
+            JOIN tbl_jual j ON c.jual_nofak = j.jual_nofak 
+            WHERE j.jual_user_id = $userID AND p.pelanggan_nama LIKE '%$pelanggan_nama%';")->result();
+                
+        if (count($data) == 0) {
+            $hasil = [
+                'status' => 'not ok',
+                'data' => NULL
+            ];
+        } else {
+            $hasil = [
+                'status' => 'ok',
+                'data' => $data
+            ];
+        }
+
+        echo json_encode($hasil);
+    }
 }

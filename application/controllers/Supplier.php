@@ -115,24 +115,28 @@ class Supplier extends CI_Controller
         $supplierId = $_POST['supplierId'];
         $supplierBarangId = $_POST['supplierBarangId'];
         $supplierBarangHarjul = $_POST['supplierBarangHarjul'];
-        $supplierBarangStok = $_POST['supplierBarangStok'];
         $supplierBarangQty = $_POST['supplierBarangQty'];
         $created_at = date('Y-m-d h:m:s');
 
         $cekstok = $this->db->query("SELECT * FROM tbl_barang WHERE barang_id = '$supplierBarangId' ")->row();
 
-        // cek stok>
-        // klo stok > 0, berarti bisa insert. klo 0, berarti gabisa insert
-        // klo misal min stok 1, trus stok skrg sisa 2. trus ada orang beli 2
-
-        // cek klo qty > stok product {
-        // gabisa
-        // }
         if ($cekstok->barang_stok > 1) {
-            // insert here
-            $input = $this->db->query("INSERT INTO tbl_keranjang_pembelian 
-                (supplier_id, barang_id, barang_harjul, barang_stok, qty, created_at) 
-                VALUES ('$supplierId', '$supplierBarangId', '$supplierBarangHarjul', '$supplierBarangStok', '$supplierBarangQty', '$created_at')");
+
+            $cartCheck = $this->db->query("SELECT * FROM tbl_keranjang_pembelian WHERE supplier_id = '$supplierId' AND barang_id = '$supplierBarangId'")->row();
+            
+            if ($cartCheck) {
+
+                $supplierBarangQty += $cartCheck->qty;
+
+                $input = $this->db->query("UPDATE tbl_keranjang_pembelian SET qty = '$supplierBarangQty' WHERE supplier_id = '$supplierId' AND barang_id = '$supplierBarangId'");
+
+            } else {
+
+                $input = $this->db->query("INSERT INTO tbl_keranjang_pembelian 
+                    (supplier_id, barang_id, barang_harjul, qty, created_at) 
+                    VALUES ('$supplierId', '$supplierBarangId', '$supplierBarangHarjul', '$supplierBarangQty', '$created_at')");
+
+            }
 
             if ($input) {
                 $hasil = [
@@ -160,10 +164,12 @@ class Supplier extends CI_Controller
         $sql = "SELECT 
         s.suplier_id, 
         s.suplier_nama, 
+        s.suplier_alamat, 
+        s.suplier_notelp, 
         b.barang_id,
         b.barang_nama,
         kjp.barang_harjul,
-        b.barang_stok
+        kjp.qty
     FROM 
         tbl_keranjang_pembelian kjp 
     JOIN 
@@ -182,6 +188,8 @@ class Supplier extends CI_Controller
                 $customers[$row['suplier_nama']] = [
                     'suplier_nama' => $row['suplier_nama'],
                     'suplier_id' => $row['suplier_id'],
+                    'suplier_alamat' => $row['suplier_alamat'],
+                    'suplier_notelp' => $row['suplier_notelp'],
                     'data' => []
                 ];
             }
@@ -190,7 +198,7 @@ class Supplier extends CI_Controller
                 'barang_id' => $row['barang_id'],
                 'barang_nama' => $row['barang_nama'],
                 'barang_harjul' => $row['barang_harjul'],
-                'barang_stok' => $row['barang_stok']
+                'qty' => $row['qty']
             ];
         }
 

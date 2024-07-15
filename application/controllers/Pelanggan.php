@@ -159,11 +159,13 @@ class Pelanggan extends CI_Controller
     {
         $sql = "SELECT 
             p.pelanggan_id, 
-            p.pelanggan_nama, 
+            p.pelanggan_nama,
+            p.pelanggan_alamat,
+            p.pelanggan_notelp, 
             b.barang_id,
             b.barang_nama,
             kj.barang_harjul,
-            b.barang_stok
+            kj.qty
         FROM 
             tbl_keranjang kj 
         JOIN 
@@ -184,6 +186,8 @@ class Pelanggan extends CI_Controller
 
                 $customers[$row['pelanggan_nama']] = [
                     'pelanggan_nama' => $row['pelanggan_nama'],
+                    'pelanggan_alamat' => $row['pelanggan_alamat'],
+                    'pelanggan_notelp' => $row['pelanggan_notelp'],
                     'pelanggan_id' => $row['pelanggan_id'],
                     'data' => []
                 ];
@@ -193,7 +197,7 @@ class Pelanggan extends CI_Controller
                 'barang_id' => $row['barang_id'],
                 'barang_nama' => $row['barang_nama'],
                 'barang_harjul' => $row['barang_harjul'],
-                'barang_stok' => $row['barang_stok']
+                'qty' => $row['qty']
             ];
         }
 

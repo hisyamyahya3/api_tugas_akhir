@@ -16,8 +16,8 @@ class Penjualan extends CI_Controller
         $jmlKembalian = $_POST['jmlKembalian'];
         $created_at = date('Y-m-d h:m:s');
         $date = date('Y-m-d');
-        $isDebt = ($jmlKembalian == 0) ? 0 : 1;
-        $keterangan = ($jmlKembalian == 0) ? 'LUNAS' : 'KURANG';
+        $isDebt = ($jmlKembalian >= 0) ? 0 : 1;
+        $keterangan = ($jmlKembalian >= 0) ? 'LUNAS' : 'KURANG';
 
         try {
             $this->db->trans_start();

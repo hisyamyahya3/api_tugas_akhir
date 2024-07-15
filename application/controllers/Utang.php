@@ -83,4 +83,33 @@ class Utang extends CI_Controller
             echo json_encode(['status' => 'not ok', 'message' => $e->getMessage()]);
         }
     }
+
+    public function search () {
+
+        $userID = $_POST['userID'];
+        $supplier_nama = $_POST['supplier_nama'];
+
+        $data = $this->db->query("SELECT u.id, u.supplier_id, s.suplier_nama, u.tgl_transaksi, u.jml_transaksi, u.jml_dibayar, u.jml_kekurangan 
+            FROM tbl_hutang u 
+            JOIN tbl_suplier s 
+            ON u.supplier_id = s.suplier_id 
+            JOIN tbl_beli b ON u.beli_nofak = b.beli_nofak 
+            WHERE b.beli_user_id = $userID AND s.suplier_nama LIKE '%$supplier_nama%';")->result();
+
+        if (count($data) == 0) {
+            $hasil = [
+                'status' => 'not ok',
+                'data' => NULL
+            ];
+        } else {
+            $hasil = [
+                'status' => 'ok',
+                'data' => $data
+            ];
+        }
+
+        echo json_encode($hasil);
+
+    }
+    
 }
