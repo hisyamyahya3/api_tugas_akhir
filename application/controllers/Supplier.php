@@ -116,6 +116,7 @@ class Supplier extends CI_Controller
         $supplierBarangId = $_POST['supplierBarangId'];
         $supplierBarangHarjul = $_POST['supplierBarangHarjul'];
         $supplierBarangQty = $_POST['supplierBarangQty'];
+        $userID = $_POST['userID'];
         $created_at = date('Y-m-d h:m:s');
 
         $cekstok = $this->db->query("SELECT * FROM tbl_barang WHERE barang_id = '$supplierBarangId' ")->row();
@@ -133,8 +134,8 @@ class Supplier extends CI_Controller
             } else {
 
                 $input = $this->db->query("INSERT INTO tbl_keranjang_pembelian 
-                    (supplier_id, barang_id, barang_harjul, qty, created_at) 
-                    VALUES ('$supplierId', '$supplierBarangId', '$supplierBarangHarjul', '$supplierBarangQty', '$created_at')");
+                    (supplier_id, barang_id, barang_harjul, qty, user_id, created_at) 
+                    VALUES ('$supplierId', '$supplierBarangId', '$supplierBarangHarjul', '$supplierBarangQty', '$userID', '$created_at')");
 
             }
 
@@ -271,5 +272,19 @@ class Supplier extends CI_Controller
         }
 
         echo json_encode($hasil);
+    }
+
+    public function hitungKeranjang () {
+
+        $userID = $_POST['userID'];
+        $data = $this->db->query("SELECT COUNT(*) AS count FROM tbl_keranjang_pembelian WHERE user_id = $userID;")->row();
+
+        $hasil = [
+            'status' => 'ok',
+            'data' => $data
+        ];
+
+        echo json_encode($hasil);
+
     }
 }

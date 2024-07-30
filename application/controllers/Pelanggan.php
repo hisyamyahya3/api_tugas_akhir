@@ -117,6 +117,7 @@ class Pelanggan extends CI_Controller
         $pelangganBarangId = $_POST['pelangganBarangId'];
         $pelangganBarangHarjul = $_POST['pelangganBarangHarjul'];
         $qty = $_POST['pelangganBarangQty'];
+        $userID = $_POST['userID'];
         $created_at = date('Y-m-d h:m:s');
 
         $cekstok = $this->db->query("SELECT * FROM tbl_barang WHERE barang_id = '$pelangganBarangId'")->row();
@@ -130,8 +131,8 @@ class Pelanggan extends CI_Controller
                 $input = $this->db->query("UPDATE tbl_keranjang SET qty = '$qty' WHERE pelanggan_id = '$pelangganId' AND barang_id = '$pelangganBarangId'");
             } else {
                 $input = $this->db->query("INSERT INTO tbl_keranjang 
-            (pelanggan_id, barang_id, barang_harjul, qty, created_at) 
-            VALUES ('$pelangganId', '$pelangganBarangId', '$pelangganBarangHarjul', '$qty', '$created_at')");
+            (pelanggan_id, barang_id, barang_harjul, qty, user_id,created_at) 
+            VALUES ('$pelangganId', '$pelangganBarangId', '$pelangganBarangHarjul', '$qty', '$userID','$created_at')");
             }
 
             if ($input) {
@@ -276,5 +277,19 @@ class Pelanggan extends CI_Controller
         }
 
         echo json_encode($hasil);
+    }
+
+    public function hitungKeranjang () {
+
+        $userID = $_POST['userID'];
+        $data = $this->db->query("SELECT COUNT(*) AS count FROM tbl_keranjang WHERE user_id = $userID;")->row();
+
+        $hasil = [
+            'status' => 'ok',
+            'data' => $data
+        ];
+
+        echo json_encode($hasil);
+
     }
 }
