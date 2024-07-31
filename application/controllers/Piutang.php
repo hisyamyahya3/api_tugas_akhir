@@ -6,14 +6,35 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 
 class Piutang extends CI_Controller
 {
+    public function categoryCustomer()
+    {
+        $userID = $_POST['userID'];
+        $data = $this->db->query("SELECT DISTINCT p.pelanggan_nama, c.id_pelanggan
+            FROM tbl_piutang c 
+            JOIN tbl_pelanggan p ON p.pelanggan_id = c.id_pelanggan
+            JOIN tbl_jual j ON c.jual_nofak = j.jual_nofak
+            WHERE j.jual_user_id = 3  
+            ORDER BY p.pelanggan_nama;")
+            ->result();
+
+        $hasil = [
+            'status' => 'ok',
+            'data' => $data
+        ];
+
+        echo json_encode($hasil);
+    }
+
     public function index()
     {
         $userID = $_POST['userID'];
+        $customerID = $_POST['customerID'];
         $data = $this->db->query("SELECT c.id, p.pelanggan_nama, c.tgl_transaksi, c.jml_transaksi, c.jml_dibayar, c.jml_kekurangan 
             FROM tbl_piutang c 
             JOIN tbl_pelanggan p ON p.pelanggan_id = c.id_pelanggan
             JOIN tbl_jual j ON c.jual_nofak = j.jual_nofak
-            WHERE j.jual_user_id = $userID")
+            WHERE j.jual_user_id = $userID 
+            AND p.pelanggan_id = $customerID")
             ->result();
 
         $hasil = [
@@ -88,12 +109,15 @@ class Piutang extends CI_Controller
         $userID = $_POST['userID'];
         $pelanggan_nama = $_POST['pelanggan_nama'];
 
-        $data = $this->db->query("SELECT c.id, p.pelanggan_nama, c.tgl_transaksi, c.jml_transaksi, c.jml_dibayar, c.jml_kekurangan 
+        $data = $this->db->query("SELECT DISTINCT p.pelanggan_nama, c.id_pelanggan 
             FROM tbl_piutang c 
             JOIN tbl_pelanggan p 
             ON p.pelanggan_id = c.id_pelanggan 
-            JOIN tbl_jual j ON c.jual_nofak = j.jual_nofak 
-            WHERE j.jual_user_id = $userID AND p.pelanggan_nama LIKE '%$pelanggan_nama%';")->result();
+            JOIN tbl_jual j 
+            ON c.jual_nofak = j.jual_nofak 
+            WHERE j.jual_user_id = 3 
+            AND p.pelanggan_nama 
+            LIKE '%$pelanggan_nama%';")->result();
                 
         if (count($data) == 0) {
             $hasil = [

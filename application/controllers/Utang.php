@@ -6,14 +6,36 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 
 class Utang extends CI_Controller
 {
+    public function categorySupplier()
+    {
+        $userID = $_POST['userID'];
+        $data = $this->db->query("SELECT DISTINCT s.suplier_nama, u.supplier_id 
+            FROM tbl_hutang u 
+            JOIN tbl_suplier s 
+            ON u.supplier_id = s.suplier_id 
+            JOIN tbl_beli b 
+            ON u.beli_nofak = b.beli_nofak 
+            WHERE b.beli_user_id = $userID;")
+            ->result();
+
+        $hasil = [
+            'status' => 'ok',
+            'data' => $data
+        ];
+
+        echo json_encode($hasil);
+    }
+
     public function index()
     {
         $userID = $_POST['userID'];
+        $supplierID = $_POST['supplierID'];
         $data = $this->db->query("SELECT u.id, u.supplier_id, s.suplier_nama, u.tgl_transaksi, u.jml_transaksi, u.jml_dibayar, u.jml_kekurangan 
             FROM tbl_hutang u 
             JOIN tbl_suplier s ON u.supplier_id = s.suplier_id
             JOIN tbl_beli b ON u.beli_nofak = b.beli_nofak
-            WHERE b.beli_user_id = $userID")
+            WHERE b.beli_user_id = $userID
+            AND s.suplier_id = $supplierID")
             ->result();
 
         $hasil = [
@@ -89,12 +111,16 @@ class Utang extends CI_Controller
         $userID = $_POST['userID'];
         $supplier_nama = $_POST['supplier_nama'];
 
-        $data = $this->db->query("SELECT u.id, u.supplier_id, s.suplier_nama, u.tgl_transaksi, u.jml_transaksi, u.jml_dibayar, u.jml_kekurangan 
+        $data = $this->db->query("SELECT DISTINCT s.suplier_nama, u.supplier_id 
             FROM tbl_hutang u 
             JOIN tbl_suplier s 
             ON u.supplier_id = s.suplier_id 
-            JOIN tbl_beli b ON u.beli_nofak = b.beli_nofak 
-            WHERE b.beli_user_id = $userID AND s.suplier_nama LIKE '%$supplier_nama%';")->result();
+            JOIN tbl_beli b 
+            ON u.beli_nofak = b.beli_nofak 
+            WHERE b.beli_user_id = $userID
+            AND s.suplier_nama 
+            LIKE '%$supplier_nama%';")
+            ->result();
 
         if (count($data) == 0) {
             $hasil = [
