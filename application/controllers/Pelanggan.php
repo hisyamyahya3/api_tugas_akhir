@@ -214,9 +214,14 @@ class Pelanggan extends CI_Controller
 
         $data = $this->db->query("SELECT kj.id, kj.pelanggan_id, kj.barang_id, b.barang_nama, kj.barang_harjul, b.barang_stok, kj.qty FROM tbl_keranjang kj JOIN tbl_barang b ON kj.barang_id = b.barang_id WHERE kj.pelanggan_id = '$pelangganId'")->result();
 
+        $totalPiutang = $this->db->query("SELECT SUM(pu.jml_kekurangan) AS total, p.pelanggan_id, pu.id_pelanggan, pu.status FROM tbl_pelanggan p JOIN tbl_piutang pu ON p.pelanggan_id = pu.id_pelanggan WHERE p.pelanggan_id = '$pelangganId' GROUP BY p.pelanggan_id, pu.id_pelanggan, pu.status;")->row();
+
         $hasil = [
             'status' => 'ok',
-            'data' => $data
+            'data' => [
+                'detailKeranjang' => $data,
+                'totalPiutang' => $totalPiutang
+            ]
         ];
 
         echo json_encode($hasil);
@@ -254,10 +259,20 @@ class Pelanggan extends CI_Controller
         $qty = $_POST['qty'];
         $action = $_POST['action'];
 
-        // if action?? plus =???? $qty + 1 else qty - 1
+        $cekstok = $this->db->query("SELECT barang_stok FROM tbl_barang WHERE barang_id = '$barang_id'")->row();
 
+        // echo "$cekstok->barang_stok & $qty";
         if ($action == 'plus') {
-            $qty += 1;
+            if ( $qty >= $cekstok->barang_stok ) {
+                $hasil = [
+                    'status' => 'gagal',
+                    'keterangan' => 'Maaf Stok Sudah Mencapai Limit!'
+                ];
+                echo json_encode($hasil);
+                exit;
+            } else {
+                $qty += 1;
+            }
         } else {
             $qty -= 1;
         }
@@ -275,7 +290,7 @@ class Pelanggan extends CI_Controller
                 'keterangan' => 'data gagal diupdate'
             ];
         }
-
+        
         echo json_encode($hasil);
     }
 

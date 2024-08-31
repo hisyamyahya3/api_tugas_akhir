@@ -121,41 +121,41 @@ class Supplier extends CI_Controller
 
         $cekstok = $this->db->query("SELECT * FROM tbl_barang WHERE barang_id = '$supplierBarangId' ")->row();
 
-        if ($cekstok->barang_stok > 1) {
+        $cartCheck = $this->db->query("SELECT * FROM tbl_keranjang_pembelian WHERE supplier_id = '$supplierId' AND barang_id = '$supplierBarangId'")->row();
+        
+        if ($cartCheck) {
 
-            $cartCheck = $this->db->query("SELECT * FROM tbl_keranjang_pembelian WHERE supplier_id = '$supplierId' AND barang_id = '$supplierBarangId'")->row();
-            
-            if ($cartCheck) {
+            $supplierBarangQty += $cartCheck->qty;
 
-                $supplierBarangQty += $cartCheck->qty;
+            $input = $this->db->query("UPDATE tbl_keranjang_pembelian SET qty = '$supplierBarangQty' WHERE supplier_id = '$supplierId' AND barang_id = '$supplierBarangId'");
 
-                $input = $this->db->query("UPDATE tbl_keranjang_pembelian SET qty = '$supplierBarangQty' WHERE supplier_id = '$supplierId' AND barang_id = '$supplierBarangId'");
+        } else {
 
-            } else {
+            $input = $this->db->query("INSERT INTO tbl_keranjang_pembelian 
+                (supplier_id, barang_id, barang_harjul, qty, user_id, created_at) 
+                VALUES ('$supplierId', '$supplierBarangId', '$supplierBarangHarjul', '$supplierBarangQty', '$userID', '$created_at')");
 
-                $input = $this->db->query("INSERT INTO tbl_keranjang_pembelian 
-                    (supplier_id, barang_id, barang_harjul, qty, user_id, created_at) 
-                    VALUES ('$supplierId', '$supplierBarangId', '$supplierBarangHarjul', '$supplierBarangQty', '$userID', '$created_at')");
+        }
 
-            }
-
-            if ($input) {
-                $hasil = [
-                    'status' => 'ok',
-                    'keterangan' => 'data berhasil ditambahkan ke Keranjang'
-                ];
-            } else {
-                $hasil = [
-                    'status' => 'gagal',
-                    'keterangan' => 'data gagal ditambahkan ke Keranjang'
-                ];
-            }
+        if ($input) {
+            $hasil = [
+                'status' => 'ok',
+                'keterangan' => 'data berhasil ditambahkan ke Keranjang'
+            ];
         } else {
             $hasil = [
                 'status' => 'gagal',
                 'keterangan' => 'data gagal ditambahkan ke Keranjang'
             ];
         }
+        // if ($cekstok->barang_stok > 1) {
+
+        // } else {
+        //     $hasil = [
+        //         'status' => 'gagal',
+        //         'keterangan' => 'data gagal ditambahkan ke Keranjang'
+        //     ];
+        // }
 
         echo json_encode($hasil);
     }
@@ -215,9 +215,14 @@ class Supplier extends CI_Controller
 
         $data = $this->db->query("SELECT kjp.id, kjp.supplier_id, kjp.barang_id, b.barang_nama, kjp.barang_harjul, b.barang_stok, kjp.qty FROM tbl_keranjang_pembelian kjp JOIN tbl_barang b ON kjp.barang_id = b.barang_id WHERE kjp.supplier_id = '$supplierId';")->result();
 
+        $totalUtang = $this->db->query("SELECT SUM(u.jml_kekurangan) AS total, u.status FROM tbl_hutang u JOIN tbl_suplier s ON u.supplier_id = s.suplier_id WHERE s.suplier_id = '$supplierId' GROUP BY u.supplier_id, s.suplier_id, u.status;")->row();
+
         $hasil = [
             'status' => 'ok',
-            'data' => $data
+            'data' => [
+                'detailKeranjang' => $data,
+                'totalUtang' => $totalUtang
+            ]
         ];
 
         echo json_encode($hasil);

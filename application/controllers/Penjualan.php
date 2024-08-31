@@ -59,7 +59,7 @@ class Penjualan extends CI_Controller
                 $formattedNofak = date('dmy') . str_pad($counter, 6, "0", STR_PAD_LEFT);
             }
 
-            $cartsData = $this->db->query("SELECT tk.barang_id, tb.barang_nama, tb.barang_harpok, tb.barang_harjul, tk.qty 
+            $cartsData = $this->db->query("SELECT tk.barang_id, tb.barang_nama, tb.barang_harpok, tb.barang_harjul, tb.barang_satuan, tk.qty 
                 FROM tbl_keranjang tk
                 JOIN tbl_barang tb ON tk.barang_id = tb.barang_id
                 WHERE tk.pelanggan_id = $idPelanggan")
@@ -72,7 +72,7 @@ class Penjualan extends CI_Controller
             foreach ($cartsData as $item) {
                 $barangId = $item->barang_id;
                 $barangNama = $item->barang_nama;
-                $barangSatuan = 'pcs';
+                $barangSatuan = $item->barang_satuan;
                 $barangHarpok = $item->barang_harpok;
                 $barangHarjul = $item->barang_harjul;
                 $qty = $item->qty;
@@ -92,13 +92,13 @@ class Penjualan extends CI_Controller
                     throw new Exception("Stok barang $barangNama tidak tersedia!");
                 }
 
-                if ($getLatestStock->barang_min_stok == $getLatestStock->barang_stok) {
-                    throw new Exception("Stok barang $barangNama tidak tersedia!");
-                }
+                // if ($getLatestStock->barang_min_stok == $getLatestStock->barang_stok) {
+                //     throw new Exception("Stok barang $barangNama tidak tersedia!");
+                // }
 
-                if ($finalStock < $getLatestStock->barang_min_stok) {
-                    throw new Exception("Stok barang $barangNama tidak tersedia!");
-                }
+                // if ($finalStock < $getLatestStock->barang_min_stok) {
+                //     throw new Exception("Stok barang $barangNama tidak tersedia!");
+                // }
 
                 $this->db->query("UPDATE tbl_barang SET barang_stok = $finalStock WHERE barang_id = $barangId");
             }
@@ -135,7 +135,8 @@ class Penjualan extends CI_Controller
             ON p.pelanggan_id = j.jual_id_pelanggan 
             JOIN tbl_detail_jual dj 
             ON j.jual_nofak = dj.d_jual_nofak
-            WHERE j.jual_user_id = $userID")->result();
+            WHERE j.jual_user_id = $userID
+            ORDER BY p.pelanggan_nama")->result();
 
         $hasil = [
             'status' => 'ok',
